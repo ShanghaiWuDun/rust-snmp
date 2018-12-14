@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["AAAA",""]],"enum":[["Class",""],["Kind",""]],"struct":[["Boolean",""],["Integer","capable of holding a value from -2,147,483,648 to +2,147,483,647"],["Null",""],["ObjectIdentifier",""],["OctetString",""],["Sequence",""],["Set",""],["UTCTime",""]],"trait":[["Value",""]],"type":[["Integer32",""]]});
