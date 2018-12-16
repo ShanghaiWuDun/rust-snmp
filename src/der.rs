@@ -1,4 +1,8 @@
 
+use crate::asn1::Value;
+use crate::asn1::ValueKind;
+use crate::asn1::Boolean;
+
 use std::fmt;
 use std::io::{ self, Read, Write, };
 
@@ -108,88 +112,58 @@ pub fn encode<W: Write>(type_id: u8, payload: &[u8], output: &mut W) -> Result<u
     Ok(size)
 }
 
-pub fn decode<R: Read>(input: &mut R) -> Result<DerObject, io::Error> {
+
+
+pub fn decode<R, F, V>(input: &mut R, mut handle: F) -> Result<(V, usize), io::Error> 
+where
+    R: Read,
+    V: Value,
+    F: FnMut(ValueKind, usize, &mut R) -> Result<(V, usize), io::Error> {
+
     let mut readed = 0usize;
 
     let mut type_id = [0u8; 1];
     input.read_exact(&mut type_id)?;
+    let type_id = type_id[0];
     readed += 1;
 
     let (payload_length, amt) = decode_length(input)?;
     readed += amt;
 
-    let mut payload = vec![0u8; payload_length];
+    let (v, amt): (V, usize) = handle(ValueKind(type_id), payload_length, input)?;
+    readed += amt;
 
-    input.read_exact(&mut payload)?;
-    readed += payload_length;
+    Ok((v, readed))
 
-    Ok(DerObject {
-        id: type_id[0],
-        payload: payload,
-        size: readed,
-    })
+    // let mut payload = vec![0u8; payload_length];
+
+    // input.read_exact(&mut payload)?;
+    // readed += payload_length;
+
+    // Ok(DerObject {
+    //     id: type_id,
+    //     payload: payload,
+    //     size: readed,
+    // })
 }
 
 
-pub trait DerEncoder<W: Write> {
-    fn der_encode_length(&mut self, out: &mut W, length: usize) -> Result<(), io::Error> {
-        if length >= 128 {
-            let n = {
-                let mut i = length;
-                let mut bytes = 1;
 
-                while i > 255 {
-                    bytes += 1;
-                    i >>= 8;
-                }
-
-                bytes
-            };
-
-            (*out).write_all(&[0x80 | n])?;
-
-            for i in (1 .. n + 1).rev() {
-                (*out).write_all(&[(length >> ((i - 1) * 8)) as u8])?;
-            }
-        } else {
-            (*out).write_all(&[length as u8])?;
-        }
-
-        Ok(())
-    }
-
-    fn der_encode(&mut self, out: &mut W) -> Result<(), io::Error>;
+pub trait Encoder<W: Write>: Value {
+    fn encode(&mut self, output: &mut W) -> Result<usize, io::Error>;
 }
 
-pub trait DerDecoder<R: Read> {
-    fn der_decode(&mut self, input: R);
+pub trait Decoder<R: Read>: Value {
+    fn decode(input: &mut R) -> Result<Self, io::Error>;
 }
 
-
-impl<R: Read> DerDecoder<R> for Vec<u8> {
-    fn der_decode(&mut self, input: R) {
-        unimplemented!()
-    }
-}
-
-impl<R: Read> DerDecoder<R> for &Vec<u8> {
-    fn der_decode(&mut self, input: R) {
-        unimplemented!()
-    }
-}
-
-impl<R: Read> DerDecoder<R> for &[u8] {
-    fn der_decode(&mut self, input: R) {
-        unimplemented!()
-    }
-}
 
 
 #[cfg(test)]
 mod test {
     use super::*;
 
-
+    
     #[test]
     fn test_encode_length() {
         let mut output = io::Cursor::new(vec![]);
@@ -322,24 +296,29 @@ mod test {
         }
     }
 
-    #[test]
-    fn test_decode() {
-        let mut input = io::Cursor::new(vec![
-            16u8, 136, 0, 0, 0, 0, 0, 0, 0, 128, 0, 1, 2, 3, 4, 5, 6, 7, 
-            8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 
-            24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 
-            40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 
-            56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 
-            72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 
-            88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 
-            103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 
-            116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127]);
-        let res = decode(&mut input);
+    // #[test]
+    // fn test_decode() {
+    //     let mut input = io::Cursor::new(vec![
+    //         16u8, 136, 0, 0, 0, 0, 0, 0, 0, 128, 
+    //         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 
+    //         11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+    //         21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+    //         31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+    //         41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
+    //         51, 52, 53, 54, 55, 56, 57, 58, 59, 60,
+    //         61, 62, 63, 64, 65, 66, 67, 68, 69, 70,
+    //         71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
+    //         81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
+    //         91, 92, 93, 94, 95, 96, 97, 98, 99, 100,
+    //         101, 102, 103, 104, 105, 106, 107, 108, 109, 110,
+    //         111, 112, 113, 114, 115, 116, 117, 118, 119, 120,
+    //         121, 122, 123, 124, 125, 126, 127]);
+    //     let res = decode(&mut input);
         
-        assert_eq!(res.is_ok(), true);
+    //     assert_eq!(res.is_ok(), true);
 
-        let der_obj = res.unwrap();
-        assert_eq!(der_obj.id, 16u8);
-        assert_eq!(&der_obj.payload[..], &(0u8..128).collect::<Vec<u8>>()[..]);
-    }
+    //     let der_obj = res.unwrap();
+    //     assert_eq!(der_obj.id, 16u8);
+    //     assert_eq!(&der_obj.payload[..], &(0u8..128).collect::<Vec<u8>>()[..]);
+    // }
 }

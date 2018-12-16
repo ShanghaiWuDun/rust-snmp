@@ -3,8 +3,8 @@
 // SNMPv1 PDUs: GetRequest-PDU, GetNextRequest-PDU, SetRequest-PDU and GetResponse-PDU:
 
 use crate::error::ErrorStatus;
-use crate::asn1::{ self, Value, Kind, Class };
-use crate::der::{ DerEncoder, DerDecoder, };
+use crate::asn1::{ self, Value, };
+
 
 use std::io::{ self, Read, Write, };
 use std::convert::TryFrom;
@@ -93,25 +93,6 @@ impl<V: Value> Pdu<V> {
 
 
 
-impl<V: Value> Value for Pdu<V> {
-    fn class(&self) -> Class {
-        Class::ContextSpecific
-    }
-
-    fn kind(&self) -> Kind {
-        Kind::Constructed
-    }
-
-    fn tag(&self) -> u8 {
-        self.kind().into()
-    }
-
-    fn length(&self) -> usize {
-        unimplemented!()
-    }
-}
-
-
 impl Into<u8> for PduKind {
     fn into(self) -> u8 {
         use self::PduKind::*;
@@ -148,19 +129,6 @@ impl TryFrom<u8> for PduKind {
             8 => Ok(Report),
             _ => Err(()),
         }
-    }
-}
-
-
-impl<W: Write, V: Value> DerEncoder<W> for Pdu<V> {
-    fn der_encode(&mut self, output: &mut W) -> Result<(), io::Error> {
-        unimplemented!()
-    }
-}
-
-impl<W: Write, V: Value> DerEncoder<W> for V1Packet<V> {
-    fn der_encode(&mut self, output: &mut W) -> Result<(), io::Error> {
-        unimplemented!()
     }
 }
 
