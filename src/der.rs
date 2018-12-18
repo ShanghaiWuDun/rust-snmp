@@ -8,42 +8,7 @@ use std::io::{ self, Read, Write, };
 
 
 // https://docs.microsoft.com/zh-cn/windows/desktop/SecCertEnroll/about-encoded-length-and-value-bytes
-
 const USIZE_LEN: usize = std::mem::size_of::<usize>();
-
-
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
-pub struct DerObject {
-    id: u8,
-    payload: Vec<u8>,
-    size: usize,
-}
-
-impl DerObject {
-    pub fn id(&self) -> u8 {
-        self.id
-    }
-
-    pub fn payload(&self) -> &[u8] {
-        &self.payload
-    }
-
-
-    pub fn class(&self) -> u8 {
-        // 2**2
-        self.id & 0b1100_0000
-    }
-
-    pub fn structured(&self) -> bool {
-        // 0 or 1
-        self.id & 0b0010_0000 == 1
-    }
-
-    pub fn tag(&self) -> u8 {
-        // 2**5
-        self.id & 0b0001_1111
-    }
-}
 
 
 fn encode_length<W: Write>(length: usize, output: &mut W) -> Result<usize, io::Error> {
@@ -153,7 +118,7 @@ pub trait Encoder<W: Write>: Value {
     fn encode(&mut self, output: &mut W) -> Result<usize, io::Error>;
 }
 
-pub trait Decoder<R: Read>: Value {
+pub trait Decoder<R: Read>: Value + Sized {
     fn decode(input: &mut R) -> Result<Self, io::Error>;
 }
 
@@ -163,7 +128,7 @@ pub trait Decoder<R: Read>: Value {
 mod test {
     use super::*;
 
-    
+
     #[test]
     fn test_encode_length() {
         let mut output = io::Cursor::new(vec![]);

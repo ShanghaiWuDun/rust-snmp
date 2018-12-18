@@ -26,7 +26,15 @@ pub mod cisco {
     // NetFlow Config:
     //     https://www.cisco.com/c/en/us/td/docs/ios/12_2/switch/configuration/guide/fswtch_c/xcfnfc.html
     // 
+    
+    // 产品: Catalyst 2960G
+    // 型号: WS-C2960G-24TC-L
+    // 链接: https://www.cisco.com/c/en/us/support/switches/catalyst-2960g-24tc-l-switch/model.html#~tab-downloads
+    // NetFlow 支持情况:
+    //      https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-2960-x-series-switches/datasheet_c78-728232.html
+    // 配置: https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst2960x/software/15-0_2_EX/security/configuration_guide/b_sec_152ex_2960-x_cg/b_sec_152ex_2960-x_cg_chapter_0100.html
 }
+
 
 pub mod hp {
     // 1.3.6.1.4.1.11 - Hewlett-Packard 

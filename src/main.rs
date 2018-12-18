@@ -7,35 +7,17 @@ use std::net::SocketAddrV4;
 use std::net::UdpSocket;
 use std::io::{ self, Read, Write, };
 
+pub mod version;
+pub mod error;
+#[macro_use]
 pub mod asn1;
 pub mod der;
 pub mod v1;
 pub mod v3;
-pub mod error;
-pub mod version;
-pub mod smi;
-
 #[allow(non_snake_case)]
 pub mod pen;
 #[allow(non_snake_case)]
 pub mod mgmt;
-
-
-
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
-pub struct Message<V: asn1::Value> {
-    version: version::Version,
-    community: Vec<u8>,
-    pdu: v1::Pdu<V>,
-}
-
-
-// pub trait MessageTrait<W: Write>: der::DerEncoder<W> {
-//     type Packet;
-
-//     fn version(&self) -> version::Version;
-//     fn packet(&self) -> Self::Packet;
-// }
 
 
 fn main() {
@@ -57,7 +39,7 @@ fn main() {
         input.read_exact(&mut payload)?;
 
         // Decode ASN.1 Value
-        if value_kind == Boolean::kind() {
+        if value_kind == Boolean(false).kind() {
             let v = if payload.len() == 0 || payload[0] == 0 { false } else { true };
             Ok((Boolean(v), payload_length))
         } else {
