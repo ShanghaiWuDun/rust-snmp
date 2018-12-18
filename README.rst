@@ -46,6 +46,8 @@ SNMP 协议版本支持情况
 *   `ASN.1 & BER & DER <http://luca.ntop.org/Teaching/Appunti/asn1.html>`_
 *   `ASN.1 DER Encoding <http://jianiau.blogspot.com/2014/06/asn1-der-encoding-decoding.html>`_
 
+*   `Simple Network Management Protocol agent support <https://www.ibm.com/support/knowledgecenter/en/SSB23S_1.1.0.12/gtpc1/dsnmp.html>`_
+
 
 *已废弃规范:*
 
