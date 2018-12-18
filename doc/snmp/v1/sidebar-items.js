@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["PduKind",""]],"struct":[["Pdu",""],["V1Packet",""]]});
+initSidebarItems({"enum":[["PduKind",""]],"struct":[["EndOfMibView",""],["GetBulkRequest",""],["GetNextRequest",""],["GetRequest",""],["GetResponse",""],["InformRequest",""],["NoSuchInstance",""],["NoSuchObject",""],["Report",""],["SetRequest",""],["TrapV1",""],["TrapV2",""],["V1Message",""],["Variables",""]],"trait":[["Message",""],["Pdu",""]]});

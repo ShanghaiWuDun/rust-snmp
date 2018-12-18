@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["DerDecoder",""],["DerEncoder",""]]});
+initSidebarItems({"fn":[["decode",""],["encode",""]],"trait":[["Decoder",""],["Encoder",""]]});

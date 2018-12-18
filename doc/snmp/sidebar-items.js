@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["asn1",""],["der",""],["error",""],["mgmt",""],["pen",""],["smi",""],["v1",""],["v3",""],["version",""]],"struct":[["Message",""]],"trait":[["MessageTrait",""]]});
+initSidebarItems({"macro":[["asn_value",""]],"mod":[["asn1",""],["der",""],["error",""],["mgmt",""],["pen",""],["v1",""],["v3",""],["version",""]]});
